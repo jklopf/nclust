@@ -52,3 +52,16 @@ coldmap(x, clust=myclust, ctag=make_tag( design, varnames=c("status","batch"),co
 ```
 
 See `?coldmap` for the options descriptions.
+
+
+## Gene Expression Data
+
+`coldmap` can be applied to each stage in the preprocessing pipeline, to visualize the effect on various steps on the pattern and the clustering.
+
+Typically, these are needed to remove the obvious and to highlight biological (or batch/confounding) effects:
+
+* Transform to log scale
+* Normalize
+* Gene centering
+
+Column and/or row centering can be done by functions provided in `nclust` (see `?center`).
