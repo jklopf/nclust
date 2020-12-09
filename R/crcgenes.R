@@ -1,0 +1,5 @@
+crcgenes <- c("SMAD2", "DCN", "COL1A1", "SPARC", "ACTA2", "TAGLN", "TNS1", 
+"CD3D", "CD8A", "PTPRC", "STAT1", "CXCL9", "CXCL10", "TYMS", 
+"SMAD4", "TXNL1", "MUC2", "SPINK4", "REG4", "BUB1", "MKI67", 
+"CENPA", "MYC", "AREG", "EREG", "CDX1", "CDX2","AXIN2","CFTR", "GPR160", "AGR[23]", 
+"CA[124]", "CLCA4", "CDX2")
