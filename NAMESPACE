@@ -3,7 +3,6 @@ import(grid)
 import(grDevices)
 
 export(rcenter,ccenter,rccenter)
-export(tile)
 
 exportPattern("Romp_.et_")
 export(wpack,pwsimm)

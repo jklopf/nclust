@@ -7,6 +7,43 @@
 
 #include "etc.h"
 
+typedef struct {
+  int M; int N;
+  double *X;
+  double *Y;
+  double *wY;
+
+} adhoc;
+double bflip_func( void *data, int i, int j)
+  {
+  adhoc *a = (adhoc*)data;
+  double *X = a->X, *Y = a->Y;
+  int M = a->M; int N = a->N;
+  double *Yi = (i <= N ? X + (i-1)*M : Y + (i-N-1)*M );
+  double *Yj = (j <= N ? X + (j-1)*M : Y + (j-N-1)*M );
+  double v = 0;
+  for(int k = 0; k < M; k++ )
+    v += Yi[k] * Yj[k];
+  return v;
+  }
+
+double bflip_func2( void *data, int i, int j )
+  {
+  adhoc *a = (adhoc*)data;
+  double *Y = a->Y, *wY = a->wY;
+  int M = a->M; int N = a->N;
+  double *Yi = Y + i*M, *Yj = Y + j*M;
+  double *wYi = wY + i*M, *wYj = wY + j*M;
+  double v = 0, w = 0;
+  for(int k = 0; k < M; k++ )
+    {
+    w += wYi[k] * wYj[k];
+    v += wYi[k]*Yi[k] * wYj[k] * Yj[k];
+    }
+  //mess("%g %g %g\n",v, w,v/w);
+  return w > 0 ? v/w : 0;
+  }
+
 void
 R_lwj(
   int *M_,
@@ -74,17 +111,13 @@ R_lwj(
           wnode[u] += wnode[i];
           }
 
-        double bflip_func( void *data, int i, int j)
-          {
-          double *Yi = (i <= N ? X + (i-1)*M : Y + (i-N-1)*M );
-          double *Yj = (j <= N ? X + (j-1)*M : Y + (j-N-1)*M );
-          double v = 0;
-          for(int k = 0; k < M; k++ )
-            v += Yi[k] * Yj[k];
-          return v;
-          }
+        adhoc a;
+        a.M = M;
+        a.N = N;
+        a.X = X;
+        a.Y = Y;
 
-        branchflip_nnephew( U, L, R, NULL, bflip_func );
+        branchflip_nnephew( U, L, R, &a, bflip_func );
 
         nfree(wnode);
         nfree(Y);
@@ -112,20 +145,12 @@ R_lwj(
             wYu[k] = sw;
             }
           }
-        double bflip_func2( void *data, int i, int j )
-          {
-          double *Yi = Y + i*M, *Yj = Y + j*M;
-          double *wYi = wY + i*M, *wYj = wY + j*M;
-          double v = 0, w = 0;
-          for(int k = 0; k < M; k++ )
-            {
-            w += wYi[k] * wYj[k];
-            v += wYi[k]*Yi[k] * wYj[k] * Yj[k];
-            }
-          //mess("%g %g %g\n",v, w,v/w);
-          return w > 0 ? v/w : 0;
-          }
-        branchflip_nnephew( U, L, R, NULL, bflip_func2 );
+        adhoc a;
+        a.M = M;
+        a.N = N;
+        a.Y = Y;
+        a.wY = wY;
+        branchflip_nnephew( U, L, R, &a, bflip_func2 );
 
         nfree(Y); nfree(wY);
         }
