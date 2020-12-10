@@ -1,4 +1,4 @@
-\name{center}
+\name{rccenter}
 \alias{ccenter,rcenter,rccenter}
 \title{Row and/or column mean centering}
 \description{Mean center the rows and/or the columns of a matrix, which

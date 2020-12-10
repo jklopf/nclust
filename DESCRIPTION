@@ -1,11 +1,11 @@
 Package: nclust
 Type: Package
 Title: Hierarchical Clustering and Visualization
-Version: 2.2.0
+Version: 2.2.1
 Depends: grid
 Date: 2020-12-09
 Author: Pratyaksha Wirapati
 Maintainer: Pratyaksha Wirapati <pratyaksha.wirapati@isb-sib.ch>
-Description: Hierarchical clustering and visualization for large datasets using nearest-neighbor chain algorithm and dot-product similarity
+Description: Hierarchical clustering and visualization for large datasets using nearest-neighbor chain algorithm and dot-product similarity.
 License: GPL
 Packaged: 2020-12-09; pratyaksha.wirapati@sib.swiss

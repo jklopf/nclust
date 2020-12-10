@@ -5,12 +5,7 @@ wdownsample <- function(
   tilesize=c(1,1) # tile size
   )
 {
-  if( class(x)[1]=="tile" )
-    {
-    w <- data$w
-    x <- data$x
-    }
-  else if(is.null(w)) 
+  if(is.null(w)) 
     {
     return( downsample(x,irow,icol,tilesize))
     }
