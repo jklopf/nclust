@@ -4,7 +4,6 @@ import(grDevices)
 
 export(rcenter,ccenter,rccenter)
 
-exportPattern("Romp_.et_")
 export(wpack,pwsimm)
 export(nclust)
 
