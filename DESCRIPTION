@@ -7,5 +7,5 @@ Date: 2020-12-09
 Author: Pratyaksha Wirapati
 Maintainer: Pratyaksha Wirapati <pratyaksha.wirapati@isb-sib.ch>
 Description: Hierarchical clustering and visualization for large datasets using nearest-neighbor chain algorithm and dot-product similarity.
-License: GPL
+License: GPL (>=2)
 Packaged: 2020-12-09; pratyaksha.wirapati@sib.swiss
