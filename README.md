@@ -29,6 +29,7 @@ batcheffect <- cbind("batch_1"=rnorm(m),"batch_2"=rnorm(m))
 
 x <- array(rnorm(m*n),dim=c(m,n)) + 0.5 * batcheffect[,design$batch]
 colnames(x) <- rownames(design)
+rownames(x) <- paste0("gene_",1:m)
 x[1,] <- x[1,] + ifelse(design$status=="disease",2,-2)
 ```
 
@@ -47,11 +48,21 @@ This perform the procedure, save the clusters in `myclust` and display the heatm
 
 To show the information in the design:
 
-```
+```R
 coldmap(x, clust=myclust, ctag=make_tag( design, varnames=c("status","batch"),cols=c("violet","green3")), ctag.space=3, rmarg=3 )
 ```
 
 See `?coldmap` for the options descriptions.
+
+To show labels:
+
+```R
+coldmap(x, clust=myclust, ctag=make_tag( design, varnames=c("status","batch"),cols=c("violet","green3")),
+ctag.space=3, rmarg=3,
+       rlab=list("gene_1",200:205),clab=list(c(1,50,n),c("patient_13","patient_33"df)))
+```
+
+
 
 
 ## Gene Expression Data
