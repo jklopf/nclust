@@ -2,8 +2,42 @@
 
 ## Installation
 
+### MacOS/Linux
+
 Install the package (requires C compiler for installing R package from source):
 
+```
+library(devtools)
+install_github("pwirapati/nclust")
+```
+
+If all is okay, load the package
+
+```
+library(nclust)
+```
+
+### Windows
+
+In order to successfuly install nclust from source, Windows users need to have rtools and the BLAS library installed on their system.
+
+Install rtools to build R packages: [rtools40](https://cran.r-project.org/bin/windows/Rtools/)
+
+If you have rtools installed, download the x32 and x64 prebuild BLAS library from the Rtools packages bintray:
+- x32: https://dl.bintray.com/rtools/mingw32/mingw-w64-i686-lapack-3.8.0-2-any.pkg.tar.xz
+- x64: https://dl.bintray.com/rtools/mingw64/mingw-w64-x86_64-lapack-3.8.0-2-any.pkg.tar.xz
+
+Open a rtools mingw32 shell and run:
+```
+pacman -Su
+pacman -U mingw-w64-i686-lapack-3.8.0-2-any.pkg.tar.xz
+```
+Open a rtools mingw64 shell and run:
+```
+pacman -Su
+pacman -U mingw-w64-x86_64-lapack-3.8.0-2-any.pkg.tar.xz
+```
+After successfull BLAS (LAPACK) library installation, install nclust from source:
 ```
 library(devtools)
 install_github("pwirapati/nclust")
