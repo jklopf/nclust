@@ -230,9 +230,9 @@ wf_dense_nclust
     branchflip_nnephew( U, L, R, &data, wf_dense_wcov );
     }
   else if( branchflip == 1 )
-    branchflip_tightleft( N, L, R, U, S );
+    branchflip_tightleft( N, U, L, R, S );
   else if( branchflip == 2 ) 
-    branchflip_tightright( N, L, R, U, S );
+    branchflip_tightright( N, U, L, R, S );
 
   // tree auxiliary info
   // - just for convenience, as they can all be re-derived from U, L and R

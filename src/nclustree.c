@@ -132,7 +132,9 @@ branchflip_tightleft(
   )
 {
   for(int i = N+1; i < 2*N; i++ )
-    if( L[i] > N && (R[i] <= N || S[L[i]] < S[R[i]]) )
+    if( L[i] <= N && R[i] <= N && L[i] > R[i]
+      || L[i] > N && R[i] > N && S[L[i]] < S[R[i]]
+      || L[i] > N && R[i] <= N )
       SWAP(int,L[i],R[i]);
 }
 
@@ -146,7 +148,9 @@ branchflip_tightright(
   )
 {
   for(int i = N+1; i < 2*N; i++ )
-    if( R[i] > N && (L[i] <= N || S[R[i]] < S[L[i]]) )
+    if( L[i] <= N && R[i] <= N && L[i] > R[i]
+      || L[i] > N && R[i] > N && S[L[i]] > S[R[i]]
+      || L[i] > N && R[i] <= N )
       SWAP(int,L[i],R[i]);
 }
 
