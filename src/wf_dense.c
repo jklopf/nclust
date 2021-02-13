@@ -61,6 +61,45 @@ wf_dense_nnc_scan(
   return;
 }
 
+// Ward's method
+void
+wf_dense_nnc_scan2(
+  void *data,
+  int j,
+  int nc,
+  int *c_,
+  double *Sj_
+  )
+{
+  wf_dense *D = (wf_dense*)data;
+  const int M = D->M;
+
+  const double *wxj = D->wx + M*j;
+  #pragma omp parallel for schedule(runtime)
+  for(int k = 0; k < nc; k++ )
+    {
+    const double *wxk = D->wx + M*c_[k];
+    double swx = 0;
+    #pragma omp simd
+    for(int i = 0; i < M; i++ )
+      {
+      double d = wxj[i] - wxk[i];
+      swx -= d*d;
+      }
+    Sj_[k] = swx;
+    }
+
+  double wj = D->u[j];
+  for(int k = 0; k < nc; k++ )
+    {
+    double wk = D->u[c_[k]];
+    Sj_[k] *= wj*wk/(wj+wk);
+    Sj_[k] /= D->St2;
+    }
+
+  return;
+}
+
 void
 wf_dense_nnc_merge(
   void *data,
@@ -196,6 +235,11 @@ wf_dense_nclust
   const int W = dims[0];  // 1: ww is null, 2 otherwise
   const int M = dims[1];
   const int N = dims[2];
+  const int cache_length = options[0];
+  const int branchflip = options[1];
+  const int standardize = options[2];
+  const int verbose = options[3];
+  const int method = options[4];
 
   if( W == 1 )
     ww = NULL;
@@ -206,11 +250,6 @@ wf_dense_nclust
 
   wf_dense data = { M, N, xx, ww, t, u, St2 };
 
-  const int cache_length = options[0];
-  const int branchflip = options[1];
-  const int standardize = options[2];
-  const int verbose = options[3];
-
   // standardize the data
   if( standardize )
     wf_dense_stdz( &data);
@@ -218,20 +257,26 @@ wf_dense_nclust
   // pre-multiply the weights
   wf_dense_premultiply(&data);
 
-  nnc( N, &data, wf_dense_nnc_scan, wf_dense_nnc_merge,
+  // 
+  // The Thing
+  //
+  nnc( N, &data, 
+    method == 1 ? wf_dense_nnc_scan : wf_dense_nnc_scan2,
+    wf_dense_nnc_merge,
     L, R, U, S, cache_length, verbose );
   
   // branch flipping method. Default to the original NN-chain order.
-  if( branchflip == 0 ) // nearest nephew
+  if( branchflip == 1 ) // centered by nearest nephew
     {
     if( S[ L[R[0]] ] < S[ R[R[0]] ] ) // arbitrary rule for the root
       SWAP(int, L[R[0]], R[R[0]] );
 
-    branchflip_nnephew( U, L, R, &data, wf_dense_wcov );
+    branchflip_nnephew( U, L, R, &data,
+     method == 1 ?  wf_dense_wcov : wf_dense_ward );
     }
-  else if( branchflip == 1 )
+  else if( branchflip == 2 )
     branchflip_tightleft( N, U, L, R, S );
-  else if( branchflip == 2 ) 
+  else if( branchflip == 3 ) 
     branchflip_tightright( N, U, L, R, S );
 
   // tree auxiliary info

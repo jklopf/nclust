@@ -3,10 +3,11 @@ wf_dense_nclust <- function(
   w = NULL,
   wfeat = NULL, # feature weights
   witem = NULL, # item weights
-  cache_length = 32,
-  branchflip = 0,
+  method = "average",
+  branchflip = "center",
   standardize = TRUE,
   autofix.inversion = FALSE,
+  cache_length = 32,
   verbose = 1
   )
 {
@@ -47,10 +48,19 @@ wf_dense_nclust <- function(
     uu <- c(0, ifelse(witem < 0, 0, witem), rep(0,N-1))
     }
 
+  if(is.na(method <- pmatch(method,c("average","ward"))))
+    stop("invalid `method`")
+
+  if( method == 2 && !is.null(w) )
+    stop("weighted data not implemented for Ward's method")
+
+  if(is.na(branchflip <- pmatch(branchflip,c("center","left","right"))))
+    stop("invalid `branchflip`")
+
   r <- .C("wf_dense_nclust",
     dims = as.integer( c(ifelse(is.null(w),1,2),M,N) ),
     options = as.integer( 
-      c(cache_length, branchflip, standardize, verbose) ),
+      c(cache_length, branchflip, standardize, verbose, method) ),
 
     ## input
     xx = as.double(xx),
@@ -81,6 +91,8 @@ wf_dense_nclust <- function(
   r$tt <- NULL
   r$uu <- NULL
   if( !is.null(colnames(x)) ) r$labels <- colnames(x)
+  r$method <- c("average","ward")[method]
+  r$branchflip <- c("center","left","right")[branchflip]
 
   rr <- check.inversion(r,verbose=verbose)
   if(autofix.inversion && rr$n.inversion > 0) r <- rr

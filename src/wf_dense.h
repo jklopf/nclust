@@ -74,6 +74,31 @@ wf_dense_wcov(
   return swx / sw;
 }
 
+static inline double
+wf_dense_ward(
+  void *data,
+  int j,
+  int k
+  )
+{
+  wf_dense *D = (wf_dense*)data;
+  int M = D->M;
+
+  double *wxj = D->wx + M*j;
+  double *wxk = D->wx + M*k;
+  double swx = 0, sw = 0;
+  #pragma omp simd
+  for(int i = 0; i < M; i++ )
+    {
+    double d = wxj[i]-wxk[i];
+    swx -= d*d;
+    }
+  sw = D->St2;
+
+  double wj = D->u[j], wk = D->u[k];
+  return wj*wk/(wj+wk)*swx / sw;
+}
+
 extern void
 wf_dense_nclust
   (
