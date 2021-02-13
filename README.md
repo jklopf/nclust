@@ -1,8 +1,7 @@
 # nclust 
 
 ## Installation
-
-### MacOS/Linux
+### Linux
 
 Install the package (requires C compiler for installing R package from source):
 
@@ -10,12 +9,16 @@ Install the package (requires C compiler for installing R package from source):
 library(devtools)
 install_github("pwirapati/nclust")
 ```
-
 If all is okay, load the package
 
 ```
 library(nclust)
 ```
+
+### MacOS
+
+Similar to Linux when setup to use `gcc` for compilation. With `clang` it should also work, but see [https://github.com/pwirapat/Rompi] when
+controling OpenMP at runtime from inside R is needed (OpenMP shared library is needed).
 
 ### Windows
 
@@ -78,9 +81,9 @@ To do the clustering of both rows and columns:
 myclust <- coldmap(x)
 ```
 
-This perform the procedure, save the clusters in `myclust` and display the heatmap. We see two main column clusters.
+This perform the procedure, save the clusters in `myclust` and display the heatmap.
 
-To show the information in the design:
+To show the information from the design table:
 
 ```R
 coldmap(x, clust=myclust, ctag=make_tag( design, varnames=c("status","batch"),cols=c("violet","green3")), ctag.space=3, rmarg=3 )
@@ -95,8 +98,6 @@ coldmap(x, clust=myclust, ctag=make_tag( design, varnames=c("status","batch"),co
 ctag.space=3, rmarg=3,
        rlab=list("gene_1",200:205),clab=list(c(1,50,n),c("patient_13","patient_33"df)))
 ```
-
-
 
 
 ## Gene Expression Data
