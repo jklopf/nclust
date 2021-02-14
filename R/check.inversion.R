@@ -6,7 +6,8 @@ n.inversion <- function(clust)
   sum( clust$S[ clust$U[i]+1 ] > clust$S[i] )
 }
 
-# Check and fix inversions by lowering the score of the parent to match the child's.
+# Check and fix inversions by lowering the score of the
+# parent to match the child's.
 # 
 # Report the frequency of having to do this. the number is higher
 # than that produced by `n.inversion` because a fix may introduce
