@@ -48,7 +48,7 @@ wf_dense_nclust <- function(
     uu <- c(0, ifelse(witem < 0, 0, witem), rep(0,N-1))
     }
 
-  if(is.na(method <- pmatch(method,c("average","ward"))))
+  if(is.na(method_id <- pmatch(method,c("average","ward"))))
     stop("invalid `method`")
 
   if( method == 2 && !is.null(w) )
@@ -60,7 +60,7 @@ wf_dense_nclust <- function(
   r <- .C("wf_dense_nclust",
     dims = as.integer( c(ifelse(is.null(w),1,2),M,N) ),
     options = as.integer( 
-      c(cache_length, branchflip, standardize, verbose, method) ),
+      c(cache_length, branchflip, standardize, verbose, method_id) ),
 
     ## input
     xx = as.double(xx),
@@ -91,7 +91,9 @@ wf_dense_nclust <- function(
   r$tt <- NULL
   r$uu <- NULL
   if( !is.null(colnames(x)) ) r$labels <- colnames(x)
-  r$method <- c("average","ward")[method]
+  r$method <- method
+  if(method == "ward")
+    r$S <- -sqrt(abs(r$S))
   r$branchflip <- c("center","left","right")[branchflip]
 
   rr <- check.inversion(r,verbose=verbose)

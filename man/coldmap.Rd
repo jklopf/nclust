@@ -8,6 +8,8 @@ coldmap(
   x, w = NULL,
   rclust=NULL, cclust=NULL,
   clust=NULL,
+  method="average",
+  rmethod=method,cmethod=method,
   rwa=NULL,rwb=NULL,
   cwa=NULL,cwb=NULL,
   rlab=NULL,col.rlab=NULL,rlab.text=NULL,

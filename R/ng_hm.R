@@ -4,6 +4,9 @@ ng_hm <- function(
   x, w = NULL,
   rclust=NULL, cclust=NULL,
   clust=NULL,
+  method="average",
+  rmethod=method,
+  cmethod=method,
   
   rwa=NULL,rwb=NULL,
   cwa=NULL,cwb=NULL,
@@ -43,11 +46,11 @@ ng_hm <- function(
     {
     if(is.null(w)) tw <- NULL
     else tw <- t(w)
-    rclust <- nclust(t(x), w=tw, standardize=rstdz )
+    rclust <- nclust(t(x), w=tw, standardize=rstdz,method=rmethod )
     }
   
   if(is.null(cclust))
-    cclust <- nclust(x, w=w, standardize=cstdz )
+    cclust <- nclust(x, w=w, standardize=cstdz,method=cmethod )
 
   if(!is.null(rlab))
     {
