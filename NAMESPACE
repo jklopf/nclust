@@ -12,7 +12,7 @@ export(flipclust)
 export(dendrocoord)
 export(subclustree)
 export(check.inversion)
-export(pos2id,sec)
+export(pos2id,sec,secitems)
 export(treesum)
 
 export(downsample,wrow,wcol,wdownsample)
