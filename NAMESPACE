@@ -27,7 +27,4 @@ export(colormap1d,colormap2d)
 export(coldmap)
 export(crcgenes)
 
-export(lwj)
-export(sim)
-
 export(make_tag)
