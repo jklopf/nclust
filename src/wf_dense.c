@@ -63,7 +63,7 @@ wf_dense_nnc_scan(
 
 // Ward's method
 void
-wf_dense_nnc_scan2(
+wf_dense_nnc_scan_ward(
   void *data,
   int j,
   int nc,
@@ -94,7 +94,7 @@ wf_dense_nnc_scan2(
     {
     double wk = D->u[c_[k]];
     Sj_[k] *= wj*wk/(wj+wk);
-    Sj_[k] /= D->St2;
+    // Sj_[k] /= D->St2;
     }
 
   return;
@@ -261,7 +261,7 @@ wf_dense_nclust
   // The Thing
   //
   nnc( N, &data, 
-    method == 1 ? wf_dense_nnc_scan : wf_dense_nnc_scan2,
+    method == 1 ? wf_dense_nnc_scan : wf_dense_nnc_scan_ward,
     wf_dense_nnc_merge,
     L, R, U, S, cache_length, verbose );
   

@@ -21,7 +21,11 @@ n2hclust <- function( clust )
   class(h) <- "hclust"
   h$order <- clust$order
   o <- rev(order(clust$S[ (N+2):(2*N)]))
-  h$height <- 1-clust$S[ o + N + 1 ]
+  if(clust$method == "average" )
+    h$height <- 1-clust$S[ o + N + 1 ]
+  else
+    h$height <- -(clust$S[ o + N + 1 ])*sqrt(2)
+
   h$merge <- array( integer((N-1)*2),c(N-1,2))
 
   vid2hid <- c( seq( -1, -N, -1), rep( 0, N-1) )
