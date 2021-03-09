@@ -10,15 +10,12 @@ typedef struct
   int M;
   int N;
   double *wx; // M x 2N
-  double *w;  // M x 2N  (if NULL, all weights are 1's)
+  double *w;  // M x 2N  cell weights (if NULL, all weights are 1's)
   double *t;  // M row weights
   double *u;  // 2N column weights
   double St2; // sum of row-weight squared (== M if all equal)
   }
 wf_dense;
-
-// if w is null, wx contains t*x (but not multiplied by u)
-// if w is not null, wx = t*u*v*x
 
 
 // callback functions for nnc

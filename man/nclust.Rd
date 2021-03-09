@@ -7,7 +7,7 @@
     w = NULL,
     wfeat=NULL,
     witem = NULL,
-    method="average",
+    method="avedot",
     branchflip = "center",
     standardize = TRUE,
     autofix.inversion = FALSE,
@@ -21,7 +21,7 @@
   Default to all weights equal one.}
   \item{wfeat}{Marginal weights for features}
   \item{witem}{Marginal weights for items}
-  \item{method}{\code{"average"} Average linkage of (optionally weighted)
+  \item{method}{\code{"avedot"} Average linkage of (optionally weighted)
     dot-product, or \code{"ward"} Ward linkage of Euclidean distance.}
   \item{branchflip}{Branch flipping methods: \code{"center"} (default),
     \code{"left"} or \code{"right"}.}

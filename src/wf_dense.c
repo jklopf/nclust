@@ -11,8 +11,116 @@
 #include "nclustree.h"
 #include "wf_dense.h"
 
+//
+// standardize 
+//
+static void
+wf_dense_stdz (
+  wf_dense *D
+  )
+{
+  if( D->w )
+    {
+    #pragma omp parallel for schedule(runtime)
+    for(int j = 1; j <= D->N; j++ )
+      {
+      double *xj = D->wx + D->M * j;
+      double *wj = D->w + D->M * j;
+      double sw = 0, swx2 = 0;
+      for(int i = 0; i < D->M; i++ )
+        {
+        double ww = D->t[i]*D->t[i]*wj[i]*wj[i];
+        sw += ww;
+        swx2 += ww * xj[i] * xj[i];
+        }
+      if( swx2 > 0 )
+        {
+        double v = swx2 / sw;
+        for(int i = 0; i < D->M; i++ )
+          wj[i] *= v;
+        double sd = sqrt( v );
+        for(int i = 0; i < D->M; i++ )
+          xj[i] /= sd;
+        }
+      }
+    }
+  else
+    {
+    #pragma omp parallel for schedule(runtime)
+    for(int j = 1; j <= D->N; j++ )
+      {
+      double *xj = D->wx + D->M * j;
+      double sw = D->St2, swx2 = 0;
+      for(int i = 0; i < D->M; i++ )
+        {
+        swx2 += D->t[i] * D->t[i] * xj[i] * xj[i];
+        }
+      if( swx2 > 0 )
+        {
+        double sd = sqrt( swx2 / sw );
+        for(int i = 0; i < D->M; i++ )
+          xj[i] /= sd;
+        }
+      }
+    }
+}
+
+// if w is null, wx contains t_i * x
+// if w is not null, wx = t_i * w_ij * x
+static void
+wf_dense_premultiply_avedot (
+  wf_dense *D
+  )
+{
+  if( D->w )
+    {
+    #pragma omp parallel for schedule(runtime)
+    for(int j = 1; j <= D->N; j++ )
+      {
+      double *wxj = D->wx + D->M * j;
+      double *wj = D->w + D->M * j;
+      for(int i = 0; i < D->M; i++ )
+        {
+        wj[i] *= D->t[i];
+        wxj[i] *= wj[i];
+        }
+      }
+    }
+  else
+    {
+    #pragma omp parallel for schedule(runtime)
+    for(int j = 1; j <= D->N; j++ )
+      {
+      double *wxj = D->wx + D->M * j;
+      for(int i = 0; i < D->M; i++ )
+        wxj[i] *= D->t[i];
+      }
+    }
+}
+
+static void
+wf_dense_premultiply_ward (
+  wf_dense *D
+  )
+{
+  if( D->w )
+    {
+    #pragma omp parallel for schedule(runtime)
+    for(int j = 1; j <= D->N; j++ )
+      {
+      double *wxj = D->wx + D->M * j;
+      double *wj = D->w + D->M * j;
+      for(int i = 0; i < D->M; i++ )
+        wj[i] *= D->t[i] * D->u[j];
+      }
+    }
+}
+
+// 
+// find the nearest for a given node j
+//
 void
-wf_dense_nnc_scan(
+wf_dense_nnc_scan_avedot(
   void *data,
   int j,
   int nc,
@@ -61,7 +169,9 @@ wf_dense_nnc_scan(
   return;
 }
 
+// 
 // Ward's method
+//
 void
 wf_dense_nnc_scan_ward(
   void *data,
@@ -74,34 +184,55 @@ wf_dense_nnc_scan_ward(
   wf_dense *D = (wf_dense*)data;
   const int M = D->M;
 
-  const double *wxj = D->wx + M*j;
-  #pragma omp parallel for schedule(runtime)
-  for(int k = 0; k < nc; k++ )
-    {
-    const double *wxk = D->wx + M*c_[k];
-    double swx = 0;
-    #pragma omp simd
-    for(int i = 0; i < M; i++ )
-      {
-      double d = wxj[i] - wxk[i];
-      swx -= d*d;
-      }
-    Sj_[k] = swx;
-    }
+  const double *xj = D->wx + M*j;
 
-  double wj = D->u[j];
-  for(int k = 0; k < nc; k++ )
+  if( D->w )
     {
-    double wk = D->u[c_[k]];
-    Sj_[k] *= wj*wk/(wj+wk);
-    // Sj_[k] /= D->St2;
+    const double *wj = D->w + M*j;
+
+    #pragma omp parallel for schedule(runtime)
+    for(int k = 0; k < nc; k++ )
+      {
+      const double *xk = D->wx + M*c_[k];
+      const double *wk = D->w + M*c_[k];
+      double sxx = 0;
+      #pragma omp simd
+      for(int i = 0; i < M; i++ )
+        {
+        double d = xj[i] - xk[i];
+        double sumw = wj[i] + wk[i];
+        double ww = (wj[i]*wk[i]);
+        if( sumw > 0 ) ww /= sumw;
+        sxx -= D->t[i]*ww*d*d;
+        }
+      Sj_[k] = sxx;
+      }
+    }
+  else
+    {
+    double wj = D->u[j];
+
+    #pragma omp parallel for schedule(runtime)
+    for(int k = 0; k < nc; k++ )
+      {
+      const double *xk = D->wx + M*c_[k];
+      double sxx = 0;
+      #pragma omp simd
+      for(int i = 0; i < M; i++ )
+        {
+        double d = xj[i] - xk[i];
+        sxx -= D->t[i]*d*d;
+        }
+      double wk = D->u[c_[k]];
+      Sj_[k] = wj*wk/(wj+wk) * sxx;
+      }
     }
 
   return;
 }
 
 void
-wf_dense_nnc_merge(
+wf_dense_nnc_merge_avedot(
   void *data,
   int m,
   int j,
@@ -114,6 +245,7 @@ wf_dense_nnc_merge(
   double uk = D->u[k];
   double um = uj + uk;
   D->u[m] = um;
+
   double *wxj = D->wx + M*j;
   double *wxk = D->wx + M*k;
   double *wxm = D->wx + M*m;
@@ -132,84 +264,43 @@ wf_dense_nnc_merge(
     }
 }
 
-static void
-wf_dense_premultiply (
-  wf_dense *D
+void
+wf_dense_nnc_merge_ward (
+  void *data,
+  int m,
+  int j,
+  int k
   )
 {
+  wf_dense *D = (wf_dense*)data;
+  const int M = D->M;
+  double *xj = D->wx + M*j;
+  double *xk = D->wx + M*k;
+  double *xm = D->wx + M*m;
+
   if( D->w )
     {
-    #pragma omp parallel for schedule(runtime)
-    for(int j = 1; j <= D->N; j++ )
+    double *wj = D->w + M*j;
+    double *wk = D->w + M*k;
+    double *wm = D->w + M*m;
+
+    for(int i = 0; i < M; i++ )
       {
-      double *wxj = D->wx + D->M * j;
-      double *wj = D->w + D->M * j;
-      for(int i = 0; i < D->M; i++ )
-        {
-        wj[i] *= D->t[i];
-        wxj[i] *= wj[i];
-        }
+      wm[i] = wj[i] + wk[i];
+      if(wm[i] > 0)
+        xm[i] = (wj[i]*xj[i] + wk[i]*xk[i])/wm[i];
+      else
+        xm[i] = 0;
       }
     }
   else
     {
-    #pragma omp parallel for schedule(runtime)
-    for(int j = 1; j <= D->N; j++ )
-      {
-      double *wxj = D->wx + D->M * j;
-      for(int i = 0; i < D->M; i++ )
-        wxj[i] *= D->t[i];
-      }
+    D->u[m] = D->u[j] + D->u[k];
+    for(int i = 0; i < M; i++ )
+      xm[i] = (D->u[j]*xj[i] + D->u[k]*xk[i])/D->u[m];
     }
 }
 
-static void
-wf_dense_stdz (
-  wf_dense *D
-  )
-{
-  if( D->w )
-    {
-    #pragma omp parallel for schedule(runtime)
-    for(int j = 1; j <= D->N; j++ )
-      {
-      double *xj = D->wx + D->M * j;
-      double *wj = D->w + D->M * j;
-      double sw = 0, swx2 = 0;
-      for(int i = 0; i < D->M; i++ )
-        {
-        double ww = D->t[i]*D->t[i]*wj[i]*wj[i];
-        sw += ww;
-        swx2 += ww * xj[i] * xj[i];
-        }
-      if( swx2 > 0 )
-        {
-        double sd = sqrt( swx2 / sw );
-        for(int i = 0; i < D->M; i++ )
-          xj[i] /= sd;
-        }
-      }
-    }
-  else
-    {
-    #pragma omp parallel for schedule(runtime)
-    for(int j = 1; j <= D->N; j++ )
-      {
-      double *xj = D->wx + D->M * j;
-      double sw = D->St2, swx2 = 0;
-      for(int i = 0; i < D->M; i++ )
-        {
-        swx2 += D->t[i] * D->t[i] * xj[i] * xj[i];
-        }
-      if( swx2 > 0 )
-        {
-        double sd = sqrt( swx2 / sw );
-        for(int i = 0; i < D->M; i++ )
-          xj[i] /= sd;
-        }
-      }
-    }
-}
 
 
 void
@@ -255,14 +346,15 @@ wf_dense_nclust
     wf_dense_stdz( &data);
 
   // pre-multiply the weights
-  wf_dense_premultiply(&data);
+  if( method == 1 )
+    wf_dense_premultiply_avedot(&data);
 
   // 
   // The Thing
   //
   nnc( N, &data, 
-    method == 1 ? wf_dense_nnc_scan : wf_dense_nnc_scan_ward,
-    wf_dense_nnc_merge,
+    method == 1 ? wf_dense_nnc_scan_avedot : wf_dense_nnc_scan_ward,
+    method == 1 ? wf_dense_nnc_merge_avedot : wf_dense_nnc_merge_ward,
     L, R, U, S, cache_length, verbose );
   
   // branch flipping method. Default to the original NN-chain order.
