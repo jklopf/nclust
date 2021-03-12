@@ -11,7 +11,7 @@ export(n2hclust,h2nclust)
 export(flipclust)
 export(dendrocoord)
 export(subclustree)
-export(check.inversion)
+export(check.inversion,list.inversion)
 export(pos2id,sec,secitems)
 export(treesum)
 

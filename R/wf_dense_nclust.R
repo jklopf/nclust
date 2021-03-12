@@ -48,7 +48,7 @@ wf_dense_nclust <- function(
     uu <- c(0, ifelse(witem < 0, 0, witem), rep(0,N-1))
     }
 
-  if(is.na(method_id <- pmatch(method,c("avedot","ward"))))
+  if(is.na(method_id <- pmatch(method,c("avedot","ward","avecor"))))
     stop("invalid `method`")
 
 #  if( method == 2 && !is.null(w) )

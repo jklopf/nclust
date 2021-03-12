@@ -32,4 +32,5 @@ ng_dendrogram <- function( clust, horizontal = FALSE,
     if(horizontal) u$y+0.5 else u$y,default.units="native",
     gp=gpar(col=col))
   grid.clip(width=unit(100,"npc"),height=unit(100,"npc")) # ugly hack to undo clip
+  return(hscale)
 }

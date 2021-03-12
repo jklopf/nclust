@@ -72,6 +72,34 @@ wf_dense_wcov(
 }
 
 static inline double
+wf_dense_avecor(
+  void *data,
+  int j,
+  int k
+  )
+{
+  wf_dense *D = (wf_dense*)data;
+  int M = D->M;
+
+  double *xj = D->wx + M*j;
+  double *xk = D->wx + M*k;
+  double *wj = D->w + M*j;
+  double *wk = D->w + M*k;
+  double sjk = 0, sjj = 0, skk = 0;
+  #pragma omp simd
+  for(int i = 0; i < M; i++ )
+    {
+    sjk += wj[i]*wk[i]*xj[i]*xk[i];
+    sjj += wj[i]*wj[i]*xj[i]*xj[i];
+    skk += wk[i]*wk[i]*xk[i]*xk[i];
+    }
+  if( sjj*skk > 0 )
+    return sjk/sqrt(sjj*skk);
+  else
+    return 0;
+}
+
+static inline double
 wf_dense_ward(
   void *data,
   int j,

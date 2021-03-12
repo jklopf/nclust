@@ -36,3 +36,18 @@ check.inversion <- function(clust,verbose=1)
   clust$maxdiff.inversion <- maxd
   invisible(clust)
 }
+
+list.inversion <- function(clust)
+{
+  N <- clust$N
+  i <- which( (clust$S < clust$S[ clust$U+1 ])[(N+2):(2*N-1)] ) + N + 1
+  Si <- clust$S[i]
+  Sp <- clust$S[ clust$U[i]+1]
+  cbind(
+    node=i,
+    S.node=Si,
+    S.parent=Sp,
+    abs.diff=abs(Si-Sp),
+    "%.diff"=abs(Si-Sp)/abs(Si)
+    )
+}

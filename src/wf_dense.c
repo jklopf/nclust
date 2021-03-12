@@ -108,7 +108,6 @@ wf_dense_premultiply_ward (
     #pragma omp parallel for schedule(runtime)
     for(int j = 1; j <= D->N; j++ )
       {
-      double *wxj = D->wx + D->M * j;
       double *wj = D->w + D->M * j;
       for(int i = 0; i < D->M; i++ )
         wj[i] *= D->t[i] * D->u[j];
@@ -166,6 +165,43 @@ wf_dense_nnc_scan_avedot(
       }
     }
 
+  return;
+}
+
+void
+wf_dense_nnc_scan_avecor(
+  void *data,
+  int j,
+  int nc,
+  int *c_,
+  double *Sj_
+  )
+{
+  wf_dense *D = (wf_dense*)data;
+  const int M = D->M;
+
+  if( !D->w ) return; // don't have to do this. check before calling.
+
+  const double *xj = D->wx + M*j;
+  const double *wj = D->w + M*j;
+  #pragma omp parallel for schedule(runtime)
+  for(int k = 0; k < nc; k++ )
+    {
+    const double *xk = D->wx + M*c_[k];
+    const double *wk = D->w + M*c_[k];
+    double sjk = 0, sjj = 0, skk = 0;
+    #pragma omp simd
+    for(int i = 0; i < M; i++ )
+      {
+      sjk += wj[i] * wk[i] * xj[i] * xk[i];
+      sjj += wj[i] * wj[i] * xj[i] * xj[i];
+      skk += wk[i] * wk[i] * xk[i] * xk[i];
+      }
+    if( sjj*skk > 0 )
+      Sj_[k] = sjk/sqrt(sjj*skk);
+    else
+      Sj_[k] = 0;
+    }
   return;
 }
 
@@ -328,9 +364,9 @@ wf_dense_nclust
   const int N = dims[2];
   const int cache_length = options[0];
   const int branchflip = options[1];
-  const int standardize = options[2];
+  int standardize = options[2];
   const int verbose = options[3];
-  const int method = options[4];
+  int method = options[4];
 
   if( W == 1 )
     ww = NULL;
@@ -341,6 +377,12 @@ wf_dense_nclust
 
   wf_dense data = { M, N, xx, ww, t, u, St2 };
 
+  if( W == 1 && method == 3 )
+    {
+    method = 1;
+    standardize = 1;
+    }
+
   // standardize the data
   if( standardize )
     wf_dense_stdz( &data);
@@ -348,12 +390,15 @@ wf_dense_nclust
   // pre-multiply the weights
   if( method == 1 )
     wf_dense_premultiply_avedot(&data);
+  else
+    wf_dense_premultiply_ward(&data); // the same for avecor
 
   // 
   // The Thing
   //
   nnc( N, &data, 
-    method == 1 ? wf_dense_nnc_scan_avedot : wf_dense_nnc_scan_ward,
+    method == 1 ? wf_dense_nnc_scan_avedot 
+      : ( method == 2 ? wf_dense_nnc_scan_ward : wf_dense_nnc_scan_avecor ),
     method == 1 ? wf_dense_nnc_merge_avedot : wf_dense_nnc_merge_ward,
     L, R, U, S, cache_length, verbose );
   
@@ -364,7 +409,8 @@ wf_dense_nclust
       SWAP(int, L[R[0]], R[R[0]] );
 
     branchflip_nnephew( U, L, R, &data,
-     method == 1 ?  wf_dense_wcov : wf_dense_ward );
+     method == 1 ?  wf_dense_wcov 
+      : (method == 2 ? wf_dense_ward : wf_dense_avecor) );
     }
   else if( branchflip == 2 )
     branchflip_tightleft( N, U, L, R, S );

@@ -21,7 +21,7 @@ n2hclust <- function( clust )
   class(h) <- "hclust"
   h$order <- clust$order
   o <- rev(order(clust$S[ (N+2):(2*N)]))
-  if(clust$method == "avedot" )
+  if(clust$method == "avedot"|| clust$method == "avecor" )
     h$height <- 1-clust$S[ o + N + 1 ]
   else
     h$height <- -(clust$S[ o + N + 1 ])*sqrt(2)

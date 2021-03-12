@@ -176,10 +176,13 @@ ng_hm <- function(
 
 		if( is.null(rdend.col) )
 			rdend.col <- list( list(c(1,rclust$N), "black" ))
+    else
+      rdend.col <- c( list(list(c(1,rclust$N), "darkgray")), rdend.col )
 
+    hrange <- range(rclust$S)
 		lapply( rdend.col, function(u)
 	      {
-    		ng_dendrogram( rclust, horizontal=TRUE, wscale=ys,
+    		ng_dendrogram( rclust, horizontal=TRUE, wscale=ys,hscale=hrange,
      		stemtype="relative",stemlength=0.05, nprune=rbin,
 				col = u[[2]], root = sec( rclust, pos2id(rclust,u[[1]])) 
 				)
@@ -197,10 +200,13 @@ ng_hm <- function(
 
     if( is.null(cdend.col) )
       cdend.col <- list( list(c(1,cclust$N), "black" ))
+    else
+      cdend.col <- c( list(list(c(1,cclust$N), "darkgray")), cdend.col )
 
+    hrange <- range(cclust$S)
     lapply( cdend.col, function(u)
       {
-      ng_dendrogram( cclust, horizontal=FALSE, wscale=xs,
+      ng_dendrogram( cclust, horizontal=FALSE, wscale=xs,hscale=hrange,
         stemtype="relative",stemlength=0.05,nprune=cbin,
         col=u[[2]], root=sec(cclust,pos2id(cclust,u[[1]]))
       )
