@@ -1,5 +1,7 @@
 \name{rccenter}
-\alias{ccenter,rcenter,rccenter}
+\alias{rccenter}
+\alias{ccenter}
+\alias{rcenter}
 \title{Row and/or column mean centering}
 \description{Mean center the rows and/or the columns of a matrix, which
   can also be weighted.}

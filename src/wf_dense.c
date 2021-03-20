@@ -239,7 +239,7 @@ wf_dense_nnc_scan_ward(
         double sumw = wj[i] + wk[i];
         double ww = (wj[i]*wk[i]);
         if( sumw > 0 ) ww /= sumw;
-        sxx -= D->t[i]*ww*d*d;
+        sxx -= ww*d*d;
         }
       Sj_[k] = sxx;
       }

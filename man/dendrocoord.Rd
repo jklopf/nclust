@@ -16,6 +16,7 @@
   \item{clust}{\verb{nclust} object}
   \item{root}{Root of subtree to draw. The default is the whole
     tree.}
+  \item{height}{component of \code{clust} used as tree height}
   \item{horizontal}{grow tree horizontally}
   \item{nprune}{Pruning of the tree. If positive,
     it is the maximum number of leafs on terminal clusters. If negative,

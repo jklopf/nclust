@@ -8,7 +8,7 @@ coldmap(
   x, w = NULL,
   rclust=NULL, cclust=NULL,
   clust=NULL,
-  method="average",
+  method="avedot",
   rmethod=method,cmethod=method,
   rwa=NULL,rwb=NULL,
   cwa=NULL,cwb=NULL,
@@ -19,6 +19,7 @@ coldmap(
   tmarg = .5, bmarg=.5,
   lmarg = .5, rmarg=.5,
   rdend.space=5, cdend.space=4,
+  rdend.col=NULL, cdend.col=NULL,
   rtag.space=0.5, ctag.space=0.5,
   rplot.space=0, cplot.space=1,
   rlab.space=3, clab.space=3,clab.tilt=FALSE,
@@ -35,11 +36,16 @@ coldmap(
   \item{rclust,cclust}{Row and column clustering objects, as produced
     by \code{nnc}}
   \item{clust}{A list with two members: \code{rclust} and \code{cclust}}
+  \item{method,rmethod,cmethod}{Clustering method, see \code{\link{nclust}}.
+  Use \code{rmethod} and \code{cmethod} if they differ.}
   \item{rwa,rwb,cwa,cwb}{Row and column windows boundaries measured in
     ordering indices. The automatic values are \code{rwa=1}, \code{rwb=nrow(x)},
   \code{cwa=1} and \code{cwb=ncol(x)}. Supplied values are clipped to
   be within these default ranges.}
   \item{rlab,clab}{Row and column labels, as specified for \code{ng_label}}
+  \item{rlab.space,clab.space}{Drawing space allocated for the labels,
+  in centimeters.}
+  \item{clab.tilt}{Angle to tilt the column labels.}
   \item{col.rlab,col.clab}{Color for \code{rlab} and \code{clab}}
   \item{rlab.text,clab.text}{Vector of labels. If not given, the row
     and column names of the matrix will be used. It is assumed to
@@ -48,11 +54,14 @@ coldmap(
     The columns correspond to variables, the rows  correspond to
     data rows (if \code{rtag}) or data columns (if \code{ctag}). The
   rows has to be named with corresponding data matrix rows or columns.}
+  \item{col.rtag,col.ctag}{Colors for \code{ctag} and \code{rtag}}
+  \item{rtag.space,ctag.space}{Space allocated for the tags}
   \item{tmarg,bmarg,lmarg,rmarg}{top, bottom, left, and right margins in
   centimeters}
-  \item{rdend.space,cdend.space}{the space for row and column dendograms,
+  \item{rdend.space,cdend.space}{Drawing space for row and column dendograms,
     in centimeters}
-  \item{rdend.col,cdend.col}{Colors for the dendrograms}
+  \item{rdend.col,cdend.col}{Colors for the dendrograms. The default
+  is all black.}
   \item{ltitle,ttitle}{Left and top title, respectively}
   \item{rstdz,cstdz}{Use row and column standardization}
   \item{saturation}{Color saturation}
