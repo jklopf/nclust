@@ -63,7 +63,7 @@ To show labels:
 ```R
 coldmap(x, clust=myclust, ctag=make_tag( design, varnames=c("status","batch"),cols=c("violet","green3")),
 ctag.space=3, rmarg=3,
-       rlab=list("gene_1",200:205),clab=list(c(1,50,n),c("patient_13","patient_33"df)))
+       rlab=list("gene_1",200:205),clab=list(c(1,50,n),c("patient_13","patient_33")))
 ```
 
 
